@@ -1,0 +1,17 @@
+{
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {},
+  "regions": ["iad1"],
+  "memory": 1024,
+  "maxDuration": 60,
+  "functions": {
+    "pages/api/**": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
+}
