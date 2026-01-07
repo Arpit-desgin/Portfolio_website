@@ -54,17 +54,19 @@ export default function Navbar() {
   }, []);
 
   const handleNavClick = (href: string) => {
-    setIsMobileMenuOpen(false);
     const element = document.querySelector(href);
     if (element) {
-      const offset = 80; // Account for navbar height
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
+      // Close mobile menu first
+      setIsMobileMenuOpen(false);
+      
+      // Use scrollIntoView which works with Lenis smooth scroll
+      // Add a small delay to ensure menu animation completes
+      setTimeout(() => {
+        element.scrollIntoView({ 
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 100);
     }
   };
 
@@ -218,7 +220,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className={`block py-3 px-4 rounded-xl transition-all duration-300 ${
+                        className={`block py-3 px-4 rounded-xl transition-all duration-300 cursor-pointer ${
                           isActive
                             ? "text-foreground bg-white/10"
                             : "text-foreground-muted hover:text-foreground hover:bg-white/5"

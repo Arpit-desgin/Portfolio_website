@@ -32,6 +32,11 @@ html {
   text-rendering: optimizeLegibility;
 }
 
+/* Ensure sections don't hide behind navbar when scrolled to */
+section {
+  scroll-margin-top: 100px;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
