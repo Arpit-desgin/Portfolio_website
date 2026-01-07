@@ -184,7 +184,7 @@ export default function Hero() {
 
   useEffect(() => {
     // Animated background gradient with GSAP
-    if (backgroundRef.current) {
+    if (backgroundRef.current && !isMobile) {
       gsap.to(backgroundRef.current, {
         backgroundPosition: "200% 200%",
         duration: 20,
@@ -193,20 +193,22 @@ export default function Hero() {
       });
     }
 
-    // Floating particles effect
-    const particles = document.querySelectorAll(".particle");
-    particles.forEach((particle, index) => {
-      gsap.to(particle, {
-        y: "random(-100, 100)",
-        x: "random(-100, 100)",
-        duration: "random(3, 6)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: index * 0.2,
+    // Floating particles effect - disable on mobile
+    if (!isMobile) {
+      const particles = document.querySelectorAll(".particle");
+      particles.forEach((particle, index) => {
+        gsap.to(particle, {
+          y: "random(-100, 100)",
+          x: "random(-100, 100)",
+          duration: "random(3, 6)",
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: index * 0.2,
+        });
       });
-    });
-  }, []);
+    }
+  }, [isMobile]);
 
   const handleScrollClick = () => {
     const aboutSection = document.querySelector("#about");
@@ -219,7 +221,7 @@ export default function Hero() {
     <section
       id="home"
       ref={heroRef}
-      className="h-screen flex items-center justify-center relative overflow-hidden"
+      className="h-screen flex items-center justify-center relative overflow-hidden pt-24 md:pt-32 lg:pt-40"
       aria-label="Hero section"
     >
       {/* Animated Background Gradient */}
@@ -248,8 +250,8 @@ export default function Hero() {
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)]"
       />
 
-      {/* Floating Particles */}
-      {[...Array(6)].map((_, i) => (
+      {/* Floating Particles - disabled on mobile */}
+      {!isMobile && [...Array(6)].map((_, i) => (
         <div
           key={i}
           className="particle absolute w-2 h-2 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple opacity-20 blur-sm"
@@ -316,44 +318,14 @@ export default function Hero() {
             <CTAButton href="/Arpit_Bhardwaj_Resume.pdf" target="_blank" rel="noopener noreferrer" variant="secondary" download className="w-full sm:w-auto min-w-[180px] text-center">
               Download CV
             </CTAButton>
-            <CTAButton href="#contact" variant="tertiary" className="w-full sm:w-auto min-w-[180px] text-center">
-              Get in Touch
+            <CTAButton href="#experience" variant="tertiary" className="w-full sm:w-auto min-w-[180px] text-center">
+              View Experience
             </CTAButton>
           </motion.div>
         </div>
       </div>
 
-      {/* Enhanced Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 2,
-          duration: 0.6,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-10 cursor-pointer"
-        onClick={handleScrollClick}
-      >
-        <div className="flex flex-col items-center gap-1.5">
-          <span className="text-[10px] sm:text-xs text-foreground-muted font-medium tracking-wider uppercase">
-            Scroll
-          </span>
-          <div className="w-4 h-8 sm:w-5 sm:h-10 border-2 border-foreground-muted/40 rounded-full flex justify-center backdrop-blur-sm glass p-1 relative overflow-hidden">
-            <motion.div
-              animate={{
-                y: [0, 12, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="w-1 h-3 sm:w-1.5 sm:h-4 bg-gradient-to-b from-accent-blue via-accent-purple to-accent-neon rounded-full"
-            />
-          </div>
-        </div>
-      </motion.div>
+
     </section>
   );
 }

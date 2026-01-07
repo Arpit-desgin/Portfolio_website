@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { experiences } from "@/lib/constants";
@@ -18,8 +18,16 @@ export default function Experience() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineLineRef = useRef<HTMLDivElement>(null);
   const timelineItemsRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    // Skip scroll animations on mobile for better performance
+    if (isMobile) return;
+
     const ctx = gsap.context(() => {
       // Animate title
       if (titleRef.current) {
@@ -120,7 +128,7 @@ export default function Experience() {
     }, sectionRef);
 
     return () => ctx.revert(); // Cleanup
-  }, []);
+  }, [isMobile]);
 
   return (
     <section

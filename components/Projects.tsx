@@ -20,8 +20,16 @@ export default function Projects() {
   const projectsGridRef = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    // Skip scroll animations on mobile for better performance
+    if (isMobile) return;
+
     const ctx = gsap.context(() => {
       // Animate title
       if (titleRef.current) {
@@ -73,7 +81,7 @@ export default function Projects() {
     }, sectionRef);
 
     return () => ctx.revert(); // Cleanup
-  }, []);
+  }, [isMobile]);
 
   const handleProjectClick = (project: typeof projects[0]) => {
     setSelectedProject(project);
@@ -177,31 +185,6 @@ export default function Projects() {
                     className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     initial={false}
                   />
-
-                  {/* View Project Badge */}
-                  <motion.div
-                    className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    initial={false}
-                  >
-                    <div className="px-4 py-2 rounded-xl glass border border-white/20 backdrop-blur-sm">
-                      <span className="text-white text-sm font-medium flex items-center gap-2">
-                        View Project
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </span>
-                    </div>
-                  </motion.div>
                 </div>
 
                 {/* Project Content */}

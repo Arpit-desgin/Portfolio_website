@@ -1,35 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { navLinks } from "@/lib/constants";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const [activeSection, setActiveSection] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const lastScrollY = useRef(0);
   const { scrollY } = useScroll();
 
-  // Handle scroll direction (hide on scroll down, show on scroll up)
+  // Track scroll position for styling
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const currentScrollY = latest;
-    const scrollDifference = currentScrollY - lastScrollY.current;
-
-    // Show navbar if scrolled to top or scrolling up
-    if (currentScrollY < 100) {
-      setIsVisible(true);
-    } else if (scrollDifference < -5) {
-      // Scrolling up
-      setIsVisible(true);
-    } else if (scrollDifference > 5) {
-      // Scrolling down
-      setIsVisible(false);
-    }
-
-    lastScrollY.current = currentScrollY;
-    setIsScrolled(currentScrollY > 50);
+    setIsScrolled(latest > 50);
   });
 
   // Detect active section based on scroll position
@@ -86,25 +69,22 @@ export default function Navbar() {
   };
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.nav
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className={`fixed top-4 left-0 right-0 z-50 rounded-2xl transition-all duration-300 ${
-            isScrolled
-              ? "glass-strong shadow-soft border border-white/10"
-              : "glass border border-white/5"
-          }`}
-          style={{
-            width: "95%",
-            maxWidth: "1536px",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        >
+    <motion.nav
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-4 left-0 right-0 z-50 rounded-2xl transition-all duration-300 ${
+        isScrolled
+          ? "glass-strong shadow-soft border border-white/10"
+          : "glass border border-white/5"
+      }`}
+      style={{
+        width: "95%",
+        maxWidth: "1536px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      }}
+    >
           <div className="px-6 lg:px-8 relative">
             <div className="flex items-center justify-between h-16">
               {/* Logo - Left */}
@@ -253,7 +233,5 @@ export default function Navbar() {
             )}
           </AnimatePresence>
         </motion.nav>
-      )}
-    </AnimatePresence>
   );
 }

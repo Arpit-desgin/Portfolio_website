@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { skills } from "@/lib/constants";
@@ -49,8 +49,16 @@ export default function Skills() {
   const titleRef = useRef<HTMLDivElement>(null);
   const skillsGridRef = useRef<HTMLDivElement>(null);
   const techGridRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    // Skip scroll animations on mobile for better performance
+    if (isMobile) return;
+
     const ctx = gsap.context(() => {
       // Animate title
       if (titleRef.current) {
@@ -153,7 +161,7 @@ export default function Skills() {
     }, sectionRef);
 
     return () => ctx.revert(); // Cleanup
-  }, []);
+  }, [isMobile]);
 
   return (
     <section

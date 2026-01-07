@@ -18,8 +18,16 @@ export default function About() {
   const imageRef = useRef<HTMLDivElement>(null);
   const floatingShapeRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    // Skip scroll animations on mobile for better performance
+    if (isMobile) return;
+
     const ctx = gsap.context(() => {
       // Animate title on scroll
       if (titleRef.current) {
@@ -168,7 +176,7 @@ export default function About() {
     }, sectionRef);
 
     return () => ctx.revert(); // Cleanup
-  }, []);
+  }, [isMobile]);
 
   return (
     <section
@@ -202,19 +210,19 @@ export default function About() {
         <div className="grid md:grid-cols-2 gap-16 items-center mb-20">
           {/* Text Content */}
           <div ref={textRef} className="space-y-8">
-            <p className="text-lg md:text-xl text-foreground leading-relaxed">
+            <p className="text-lg md:text-xl text-white leading-relaxed">
               I’m a passionate full-stack developer who enjoys building clean,
               beautiful, and functional web applications. Through hands-on
               projects and continuous learning, I turn ideas into polished digital
               experiences using modern web technologies.
             </p>
-            <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
+            <p className="text-lg md:text-xl text-white leading-relaxed">
               My journey into web development began with a curiosity about how things
               work behind the scenes. Since then, I’ve been focused on learning how
               to build scalable, performant, and user-friendly applications while
               strengthening my problem-solving and development skills.
             </p>
-            <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
+            <p className="text-lg md:text-xl text-white leading-relaxed">
               When I’m not coding, I enjoy exploring new technologies, working on
               personal projects, contributing to open-source when I can, and
               learning from the developer community.
@@ -278,9 +286,9 @@ export default function About() {
               className="stat-card text-center p-8 rounded-2xl glass shadow-soft hover:shadow-glow transition-all duration-300 cursor-default"
             >
               <div className="text-4xl md:text-5xl font-bold gradient-text mb-3">
-                <span className="stat-number">{stat.value}</span>
+                <span className="stat-number text-white">{stat.value}</span>
               </div>
-              <div className="text-foreground-muted font-medium">{stat.label}</div>
+              <div className="text-white font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
