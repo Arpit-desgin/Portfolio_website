@@ -35,7 +35,7 @@ export default function Projects() {
             opacity: 1,
             y: 0,
             duration: 1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: titleRef.current,
               start: "top 80%",
@@ -61,7 +61,7 @@ export default function Projects() {
             scale: 1,
             duration: 1,
             stagger: 0.15,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: projectsGridRef.current,
               start: "top 85%",

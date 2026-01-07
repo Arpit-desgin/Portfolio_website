@@ -199,7 +199,7 @@ export default function Contact() {
             opacity: 1,
             y: 0,
             duration: 1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: titleRef.current,
               start: "top 80%",
@@ -223,7 +223,7 @@ export default function Contact() {
             y: 0,
             duration: 0.6,
             stagger: 0.1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: formRef.current,
               start: "top 85%",
@@ -249,7 +249,7 @@ export default function Contact() {
             x: 0,
             duration: 0.6,
             stagger: 0.1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: socialRef.current,
               start: "top 85%",

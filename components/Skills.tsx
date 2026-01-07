@@ -64,7 +64,7 @@ export default function Skills() {
             opacity: 1,
             y: 0,
             duration: 1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: titleRef.current,
               start: "top 80%",
@@ -90,7 +90,7 @@ export default function Skills() {
             scale: 1,
             duration: 0.8,
             stagger: 0.1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: skillsGridRef.current,
               start: "top 80%",
@@ -113,7 +113,7 @@ export default function Skills() {
                 width: `${skill.level}%`,
                 duration: 1.5,
                 delay: 0.3 + index * 0.1,
-                ease: [0.16, 1, 0.3, 1],
+                ease: "power2.out",
                 scrollTrigger: {
                   trigger: card,
                   start: "top 85%",
@@ -141,7 +141,7 @@ export default function Skills() {
             rotation: 0,
             duration: 0.6,
             stagger: 0.05,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: techGridRef.current,
               start: "top 85%",

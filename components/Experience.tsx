@@ -33,7 +33,7 @@ export default function Experience() {
             opacity: 1,
             y: 0,
             duration: 1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: titleRef.current,
               start: "top 80%",
@@ -57,7 +57,7 @@ export default function Experience() {
           {
             scaleY: 1,
             duration: 2,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: timelineRef.current,
               start: "top 70%",
@@ -82,7 +82,7 @@ export default function Experience() {
             opacity: 1,
             duration: 0.6,
             stagger: 0.2,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: timelineItemsRef.current,
               start: "top 75%",
@@ -108,7 +108,7 @@ export default function Experience() {
             x: 0,
             duration: 0.8,
             stagger: 0.15,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: timelineItemsRef.current,
               start: "top 75%",

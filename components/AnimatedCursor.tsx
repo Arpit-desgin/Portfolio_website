@@ -113,7 +113,7 @@ export default function AnimatedCursor() {
       gsap.to(cursorRef.current, {
         scale,
         duration: 0.3,
-        ease: [0.16, 1, 0.3, 1],
+        ease: "power2.out",
       });
     }
   }, [isHovering, cursorType]);

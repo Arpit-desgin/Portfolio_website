@@ -44,7 +44,7 @@ export default function MagneticButton({
       type={type}
       disabled={disabled}
       {...handlers}
-      animate={{ x, y }}
+      style={{ x, y }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.98 }}
       className={`${baseClasses[variant]} ${className} ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} relative overflow-hidden group`}

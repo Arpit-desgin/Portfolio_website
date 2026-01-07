@@ -57,7 +57,6 @@ function AnimatedCamera({ reducedMotion = false }) {
   return (
     <perspectiveCamera
       ref={cameraRef}
-      makeDefault
       fov={45}
       near={0.1}
       far={100}

@@ -58,7 +58,7 @@ export default function About() {
             x: 0,
             duration: 0.8,
             stagger: 0.2,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: textRef.current,
               start: "top 80%",
@@ -112,7 +112,7 @@ export default function About() {
             scale: 1,
             duration: 0.6,
             stagger: 0.1,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "power2.out",
             scrollTrigger: {
               trigger: statsRef.current,
               start: "top 85%",
