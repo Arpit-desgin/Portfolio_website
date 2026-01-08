@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { gsap } from "gsap";
@@ -231,45 +232,51 @@ export default function About() {
 
           {/* Image/Abstract Visual */}
           <div ref={imageRef} className="relative">
-            <div className="relative w-full h-[500px] rounded-3xl overflow-hidden glass shadow-soft">
-              {/* Abstract Visual Elements */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.3 }}
+              className="relative w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden glass shadow-soft hover:shadow-glow transition-all duration-500 group"
+            >
+              {/* Abstract Visual Elements - Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/10 via-accent-purple/10 to-accent-neon/10" />
               
-              {/* Floating Shape */}
+              {/* Floating Shape - Subtle background glow */}
               <div
                 ref={floatingShapeRef}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-gradient-to-br from-accent-blue/30 to-accent-purple/30 blur-3xl"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-gradient-to-br from-accent-blue/20 to-accent-purple/20 blur-3xl pointer-events-none"
               />
 
-              {/* Geometric Shapes */}
-              <div className="absolute top-10 right-10 w-32 h-32 border-2 border-accent-blue/30 rounded-2xl rotate-12" />
-              <div className="absolute bottom-10 left-10 w-24 h-24 border-2 border-accent-purple/30 rounded-full" />
-              <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-br from-accent-neon/20 to-accent-blue/20 rounded-lg rotate-45" />
-
-              {/* Center Content */}
-              <div className="relative z-10 h-full flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-accent-blue/20 to-accent-purple/20 border-4 border-white/10 flex items-center justify-center backdrop-blur-sm">
-                    <svg
-                      className="w-16 h-16 text-accent-blue"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+              {/* Profile Photo Container */}
+              <div className="relative z-20 h-full flex items-center justify-center p-6 md:p-8">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="relative w-full h-full flex items-center justify-center"
+                >
+                  <div className="relative w-[70%] md:w-[75%] aspect-square max-w-xs">
+                    <Image
+                      src="/images/profile/arpit.jpg"
+                      alt="Arpit - Full Stack Developer"
+                      fill
+                      priority
+                      quality={95}
+                      className="object-cover rounded-2xl shadow-lg"
+                      sizes="(max-width: 768px) 70vw, (max-width: 1024px) 40vw, 300px"
+                    />
+                    
+                    {/* Subtle border glow */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent-blue/30 via-transparent to-accent-purple/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </div>
-                  <p className="text-foreground-muted text-sm font-medium">
-                    Your Photo Here
-                  </p>
-                </div>
+                </motion.div>
               </div>
-            </div>
+
+              {/* Geometric Shapes - Decorative elements */}
+              <div className="absolute top-8 right-8 w-20 h-20 md:w-32 md:h-32 border-2 border-accent-blue/20 rounded-2xl rotate-12 pointer-events-none" />
+              <div className="absolute bottom-8 left-8 w-16 h-16 md:w-24 md:h-24 border-2 border-accent-purple/20 rounded-full pointer-events-none" />
+              <div className="absolute top-1/3 right-1/4 w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-accent-neon/15 to-accent-blue/15 rounded-lg rotate-45 pointer-events-none" />
+            </motion.div>
           </div>
         </div>
 
