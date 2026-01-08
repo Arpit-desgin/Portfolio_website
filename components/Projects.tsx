@@ -5,14 +5,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { projects } from "@/lib/constants";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { isMobileDevice } from "@/lib/performanceUtils";
 import ProjectModal from "./ProjectModal";
 
-// Register GSAP ScrollTrigger plugin
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+// REMOVED: GSAP ScrollTrigger - heavy performance overhead on scroll
 
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -23,64 +19,14 @@ export default function Projects() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    setIsMobile(isMobileDevice());
   }, []);
 
   useEffect(() => {
-    // Skip scroll animations on mobile for better performance
-    if (isMobile) return;
-
-    const ctx = gsap.context(() => {
-      // Animate title
-      if (titleRef.current) {
-        gsap.fromTo(
-          titleRef.current,
-          {
-            opacity: 0,
-            y: 50,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: titleRef.current,
-              start: "top 80%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      }
-
-      // Animate project cards with cinematic stagger
-      if (projectsGridRef.current) {
-        const cards = projectsGridRef.current.querySelectorAll(".project-card");
-        gsap.fromTo(
-          cards,
-          {
-            opacity: 0,
-            y: 100,
-            scale: 0.95,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 1,
-            stagger: 0.15,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: projectsGridRef.current,
-              start: "top 85%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      }
-    }, sectionRef);
-
-    return () => ctx.revert(); // Cleanup
+    // REMOVED GSAP ScrollTrigger - Use Framer Motion's whileInView instead
+    // This is WAY more performant and doesn't require scroll listeners
+    
+    // No scroll-based animations needed - all animations handled by Framer Motion
   }, [isMobile]);
 
   const handleProjectClick = (project: typeof projects[0]) => {

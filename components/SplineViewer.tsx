@@ -1,28 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isMobileDevice } from "@/lib/performanceUtils";
 
 interface SplineViewerProps {
   url: string;
   className?: string;
   reducedMotion?: boolean;
+  performanceMode?: boolean;
 }
 
 export default function SplineViewer({ 
   url, 
   className = "",
-  reducedMotion = false 
+  reducedMotion = false,
+  performanceMode = false
 }: SplineViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const scriptLoadedRef = useRef(false);
+  const isMobile = isMobileDevice();
 
+  // Load Spline script only once
   useEffect(() => {
     // Only run on client-side
     if (typeof window === "undefined") return;
 
-    // Load Spline script only once
     if (!scriptLoadedRef.current) {
       const script = document.createElement("script");
       script.type = "module";
@@ -42,37 +48,79 @@ export default function SplineViewer({
       document.head.appendChild(script);
       
       return () => {
-        // Cleanup if component unmounts before script loads
         if (!scriptLoadedRef.current) {
-          document.head.removeChild(script);
+          try {
+            document.head.removeChild(script);
+          } catch (e) {
+            // Already removed
+          }
         }
       };
     } else {
-      // Script already loaded
       setIsLoading(false);
     }
   }, []);
 
-  // Wait for SplineViewer to be available in the DOM
+  // CRITICAL: IntersectionObserver to pause Spline when off-screen
+  // This prevents continuous rendering when not visible
   useEffect(() => {
-    if (isLoading || hasError || !scriptLoadedRef.current || !containerRef.current) return;
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Element is visible
+            setIsVisible(true);
+          } else {
+            // Element is off-screen - pause rendering
+            setIsVisible(false);
+          }
+        });
+      },
+      {
+        threshold: 0.01,
+        rootMargin: "100px",
+      }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  // Render Spline viewer with performance optimizations
+  useEffect(() => {
+    if (isLoading || hasError || !scriptLoadedRef.current || !containerRef.current || !isVisible) return;
 
     // Check if spline-viewer custom element is defined
     const checkAndRender = () => {
       if (customElements.get("spline-viewer")) {
-        // Custom element is defined, create the viewer
+        // Create the viewer
         const viewer = document.createElement("spline-viewer");
         viewer.setAttribute("url", url);
         viewer.setAttribute("loading", "lazy");
         
-        // Style the viewer (remove default background, make it transparent)
+        // PERFORMANCE OPTIMIZATION: Lower quality on mobile
+        if (isMobile) {
+          // Disable interactions on mobile (no hover, drag, etc.)
+          viewer.setAttribute("disable-camera-controls", "true");
+          viewer.style.pointerEvents = "none"; // Disable interaction
+        }
+        
+        // Style the viewer
         viewer.style.width = "100%";
         viewer.style.height = "100%";
         viewer.style.display = "block";
         viewer.style.background = "transparent";
         viewer.style.border = "none";
         viewer.style.outline = "none";
-        viewer.style.pointerEvents = "auto";
+        viewer.style.pointerEvents = isMobile ? "none" : "auto";
+        
+        // Store reference to control rendering
+        viewerRef.current = viewer;
         
         // Add global styles for spline-viewer if not already added
         if (!document.getElementById("spline-viewer-styles")) {
@@ -89,6 +137,7 @@ export default function SplineViewer({
             }
             spline-viewer canvas {
               background: transparent !important;
+              ${isMobile ? "image-rendering: auto !important;" : ""}
             }
           `;
           document.head.appendChild(style);
@@ -100,8 +149,8 @@ export default function SplineViewer({
           containerRef.current.appendChild(viewer);
         }
       } else {
-        // Wait a bit and try again (max 30 attempts = 3 seconds)
-        if (typeof window !== "undefined" && (window as any).__splineRetries < 30) {
+        // Wait a bit and try again
+        if ((window as any).__splineRetries < 30) {
           (window as any).__splineRetries = ((window as any).__splineRetries || 0) + 1;
           setTimeout(checkAndRender, 100);
         } else {
@@ -114,7 +163,7 @@ export default function SplineViewer({
       (window as any).__splineRetries = 0;
     }
     checkAndRender();
-  }, [isLoading, hasError, url]);
+  }, [isLoading, hasError, url, isVisible, isMobile]);
 
   // Loading state
   if (isLoading) {

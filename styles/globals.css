@@ -78,34 +78,6 @@ body {
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  /* Screen reader only */
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-  }
-  
-  .focus\:not-sr-only:focus {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: inherit;
-    margin: inherit;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-  }
-  
   /* Glassmorphism utility */
   .glass {
     background: var(--glass-bg);
@@ -120,8 +92,22 @@ body {
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
+
+  /* MOBILE OPTIMIZATION: Disable heavy blur effects on mobile */
+  @media (max-width: 768px) {
+    .glass {
+      background: var(--glass-bg);
+      /* Remove backdrop-filter for mobile performance */
+      border: 1px solid var(--glass-border);
+    }
+    
+    .glass-strong {
+      background: rgba(255, 255, 255, 0.08);
+      /* Remove backdrop-filter for mobile performance */
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+  }
   
-  /* Soft shadows */
   .shadow-soft {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
@@ -231,6 +217,23 @@ body {
   body {
     font-size: 16px;
     line-height: 1.6;
+  }
+  
+  /* Disable complex animations on mobile */
+  [class*="particle"] {
+    display: none !important;
+  }
+  
+  /* Reduce motion for mobile */
+  * {
+    animation-duration: 0.3s !important;
+  }
+  
+  /* Simplify shadows on mobile */
+  .shadow-soft,
+  .shadow-glow,
+  .shadow-glow-hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   }
 }
 

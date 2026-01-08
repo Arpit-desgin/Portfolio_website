@@ -3,21 +3,31 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { navLinks } from "@/lib/constants";
+import { isMobileDevice, throttle } from "@/lib/performanceUtils";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
 
-  // Track scroll position for styling
+  // Detect mobile once
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // OPTIMIZED: Use motion event listener on desktop only
   useMotionValueEvent(scrollY, "change", (latest) => {
+    if (isMobile) return; // Skip on mobile
     setIsScrolled(latest > 50);
   });
 
-  // Detect active section based on scroll position
+  // OPTIMIZED: Detect active section with throttling on desktop only
   useEffect(() => {
-    const handleActiveSection = () => {
+    if (isMobile) return; // Skip expensive DOM queries on mobile
+
+    const handleActiveSection = throttle(() => {
       const sections = navLinks.map((link) => {
         const element = document.querySelector(link.href);
         if (element) {
@@ -31,7 +41,7 @@ export default function Navbar() {
         return null;
       }).filter(Boolean);
 
-      const scrollPosition = window.scrollY + 180; // Offset for navbar
+      const scrollPosition = window.scrollY + 180;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
@@ -41,17 +51,16 @@ export default function Navbar() {
         }
       }
 
-      // If at top, set home as active
       if (window.scrollY < 100) {
         setActiveSection("#home");
       }
-    };
+    }, 100); // Throttle to 100ms
 
-    window.addEventListener("scroll", handleActiveSection);
-    handleActiveSection(); // Check on mount
+    window.addEventListener("scroll", handleActiveSection, { passive: true });
+    handleActiveSection();
 
     return () => window.removeEventListener("scroll", handleActiveSection);
-  }, []);
+  }, [isMobile]);
 
   const handleNavClick = (href: string) => {
     const element = document.querySelector(href);

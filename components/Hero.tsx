@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { gsap } from "gsap";
 import dynamic from "next/dynamic";
+import { isMobileDevice } from "@/lib/performanceUtils";
+import IsolatedSplineContainer from "./IsolatedSplineContainer";
 
-// Lazy load SplineViewer for 3D robot scene
+// Lazy load SplineViewer for 3D robot scene (DISABLED on mobile)
 const SplineViewer = dynamic(() => import("./SplineViewer"), {
   ssr: false,
   loading: () => (
@@ -131,28 +133,22 @@ export default function Hero() {
   const [shouldLoadRobot, setShouldLoadRobot] = useState(false);
   const robotContainerRef = useRef<HTMLDivElement>(null);
   
+  // CRITICAL: Only use scroll on desktop - disable on mobile for performance
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
 
-  // Parallax effect for background
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  // Parallax effect - DISABLED on mobile
+  const backgroundY = useTransform(scrollYProgress, [0, 1], (isMobile ? ["0%", "0%"] : ["0%", "50%"]));
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // Detect mobile and performance capabilities
+  // Detect mobile once
   useEffect(() => {
-    const checkMobile = () => {
-      const isMobileDevice = window.innerWidth < 768;
-      setIsMobile(isMobileDevice);
-      // Show robot on all devices, but scale down on mobile
-      setShowRobot(true);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    
-    return () => window.removeEventListener("resize", checkMobile);
+    const isMobileNow = isMobileDevice();
+    setIsMobile(isMobileNow);
+    // CHANGE: Keep Spline visible on mobile, but with performance mode
+    setShowRobot(true);
   }, []);
 
   // Intersection Observer for lazy loading the Spline scene
@@ -183,8 +179,11 @@ export default function Hero() {
   }, [showRobot]);
 
   useEffect(() => {
-    // Animated background gradient with GSAP
-    if (backgroundRef.current && !isMobile) {
+    // Skip ALL animations on mobile - critical for performance
+    if (isMobile) return;
+
+    // Animated background gradient with GSAP - DESKTOP ONLY
+    if (backgroundRef.current) {
       gsap.to(backgroundRef.current, {
         backgroundPosition: "200% 200%",
         duration: 20,
@@ -193,21 +192,19 @@ export default function Hero() {
       });
     }
 
-    // Floating particles effect - disable on mobile
-    if (!isMobile) {
-      const particles = document.querySelectorAll(".particle");
-      particles.forEach((particle, index) => {
-        gsap.to(particle, {
-          y: "random(-100, 100)",
-          x: "random(-100, 100)",
-          duration: "random(3, 6)",
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: index * 0.2,
-        });
+    // Floating particles effect - DESKTOP ONLY
+    const particles = document.querySelectorAll(".particle");
+    particles.forEach((particle, index) => {
+      gsap.to(particle, {
+        y: "random(-100, 100)",
+        x: "random(-100, 100)",
+        duration: "random(3, 6)",
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: index * 0.2,
       });
-    }
+    });
   }, [isMobile]);
 
   const handleScrollClick = () => {
@@ -224,31 +221,42 @@ export default function Hero() {
       className="h-screen flex items-center justify-center relative overflow-hidden pt-24 md:pt-32 lg:pt-40"
       aria-label="Hero section"
     >
-      {/* Animated Background Gradient */}
-      <motion.div
-        ref={backgroundRef}
-        style={{
-          y: backgroundY,
-          opacity,
-          backgroundSize: "200% 200%",
-          backgroundPosition: "0% 0%",
-        }}
-        className="absolute inset-0 bg-gradient-to-br from-accent-blue/10 via-accent-purple/10 to-accent-neon/10"
-      />
+      {/* Animated Background Gradient - DESKTOP ONLY */}
+      {!isMobile && (
+        <motion.div
+          ref={backgroundRef}
+          style={{
+            y: backgroundY,
+            opacity,
+            backgroundSize: "200% 200%",
+            backgroundPosition: "0% 0%",
+          }}
+          className="absolute inset-0 bg-gradient-to-br from-accent-blue/10 via-accent-purple/10 to-accent-neon/10"
+        />
+      )}
 
-      {/* Animated Radial Gradients */}
-      <motion.div
-        style={{ y: backgroundY }}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(0,212,255,0.15),transparent_50%)]"
-      />
-      <motion.div
-        style={{ y: backgroundY }}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(168,85,247,0.15),transparent_50%)]"
-      />
-      <motion.div
-        style={{ y: backgroundY }}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)]"
-      />
+      {/* Animated Radial Gradients - DESKTOP ONLY */}
+      {!isMobile && (
+        <>
+          <motion.div
+            style={{ y: backgroundY }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(0,212,255,0.15),transparent_50%)]"
+          />
+          <motion.div
+            style={{ y: backgroundY }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(168,85,247,0.15),transparent_50%)]"
+          />
+          <motion.div
+            style={{ y: backgroundY }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)]"
+          />
+        </>
+      )}
+
+      {/* Static background for mobile - no animation */}
+      {isMobile && (
+        <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/5 via-accent-purple/5 to-accent-neon/5" />
+      )}
 
       {/* Floating Particles - disabled on mobile */}
       {!isMobile && [...Array(6)].map((_, i) => (
@@ -265,41 +273,45 @@ export default function Hero() {
       {/* Main Content Container - Centered Layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="flex flex-col items-center justify-center min-h-[80vh]">
-          {/* Centered Spline 3D Robot */}
-          {showRobot && (
-            <motion.div
-              ref={robotContainerRef}
-              initial={{ opacity: 0, scale: 0.8, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                duration: 1.2,
-                delay: 0.5,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="w-full max-w-2xl h-[260px] sm:h-[340px] md:h-[420px] lg:h-[520px] relative z-10 mb-2 sm:mb-4 md:mb-6"
-              style={{ 
-                minHeight: "220px",
-                maxWidth: "100%",
-                overflow: "hidden"
-              }}
-            >
-              {shouldLoadRobot ? (
-                <SplineViewer 
-                  url="https://prod.spline.design/xmzrRDQRUBRdR3JQ/scene.splinecode"
-                  reducedMotion={isMobile}
-                  className="rounded-2xl overflow-hidden"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/5 via-accent-purple/5 to-accent-neon/5 rounded-2xl" />
-                  <div className="relative z-10 flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-accent-blue/20 border-t-accent-blue rounded-full animate-spin" />
-                    <p className="text-foreground-muted text-sm">Preparing 3D scene...</p>
+          {/* Centered Spline 3D Robot - Now visible on mobile with performance mode */}
+          {showRobot ? (
+            <IsolatedSplineContainer>
+              <motion.div
+                ref={robotContainerRef}
+                initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  duration: 1.2,
+                  delay: 0.5,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="w-full max-w-2xl h-[260px] sm:h-[340px] md:h-[420px] lg:h-[520px] relative z-10 mb-2 sm:mb-4 md:mb-6"
+                style={{ 
+                  minHeight: "220px",
+                  maxWidth: "100%",
+                  overflow: "hidden",
+                  pointerEvents: isMobile ? "none" : "auto",
+                }}
+              >
+                {shouldLoadRobot ? (
+                  <SplineViewer 
+                    url="https://prod.spline.design/xmzrRDQRUBRdR3JQ/scene.splinecode"
+                    reducedMotion={isMobile}
+                    performanceMode={isMobile}
+                    className="rounded-2xl overflow-hidden"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/5 via-accent-purple/5 to-accent-neon/5 rounded-2xl" />
+                    <div className="relative z-10 flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 border-4 border-accent-blue/20 border-t-accent-blue rounded-full animate-spin" />
+                      <p className="text-foreground-muted text-sm">Preparing 3D scene...</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </motion.div>
-          )}
+                )}
+              </motion.div>
+            </IsolatedSplineContainer>
+          ) : null}
 
           {/* Three CTA Buttons - Centered Below Robot */}
           <motion.div

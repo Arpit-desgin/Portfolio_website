@@ -200,7 +200,7 @@ export default function ProjectModal({
                       onClick={handlePrevImage}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hidden md:flex bg-black/60 hover:bg-black/80 border border-white/30 hover:border-white/60 backdrop-blur-sm"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hidden md:flex bg-black/60 hover:bg-black/80 border border-white/30 hover:border-white/60 backdrop-blur-sm"
                       aria-label="Previous image"
                     >
                       <svg
@@ -222,7 +222,7 @@ export default function ProjectModal({
                       onClick={handleNextImage}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hidden md:flex bg-black/60 hover:bg-black/80 border border-white/30 hover:border-white/60 backdrop-blur-sm"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hidden md:flex bg-black/60 hover:bg-black/80 border border-white/30 hover:border-white/60 backdrop-blur-sm"
                       aria-label="Next image"
                     >
                       <svg

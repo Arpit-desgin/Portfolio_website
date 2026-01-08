@@ -2,45 +2,40 @@
 
 import { useEffect, useState } from "react";
 import Lenis from "lenis";
+import { isMobileDevice } from "@/lib/performanceUtils";
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Detect mobile device
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || /iPhone|iPad|Android/i.test(navigator.userAgent));
-    };
+    // Only hydrate on client
+    setIsHydrated(true);
+    
+    // Check if mobile ONCE on mount
+    const isMobileNow = isMobileDevice();
+    setIsMobile(isMobileNow);
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
+    // CRITICAL: DISABLE LENIS COMPLETELY ON MOBILE FOR NATIVE SCROLLING
+    if (isMobileNow) {
+      // Use native smooth scrolling on mobile - much faster
+      document.documentElement.style.scrollBehavior = "smooth";
+      return;
+    }
 
-    // Initialize Lenis with mobile-optimized settings
-    const lenisConfig = isMobile
-      ? {
-          duration: 0.8, // Shorter duration for mobile
-          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          orientation: "vertical" as const,
-          gestureOrientation: "vertical" as const,
-          smoothWheel: true,
-          wheelMultiplier: 0.5, // Reduce scroll multiplier
-          touchMultiplier: 1, // Optimize for touch
-          infinite: false,
-        }
-      : {
-          duration: 1.2,
-          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          orientation: "vertical" as const,
-          gestureOrientation: "vertical" as const,
-          smoothWheel: true,
-          wheelMultiplier: 1,
-          touchMultiplier: 2,
-          infinite: false,
-        };
+    // Desktop only: Initialize Lenis with performance-optimized settings
+    const lenis = new Lenis({
+      duration: 1.2, // Smooth but not too long
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: "vertical" as const,
+      gestureOrientation: "vertical" as const,
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
 
-    const lenis = new Lenis(lenisConfig);
-
-    // Optimize RAF loop for mobile
+    // Single optimized RAF loop
     let animationFrameId: number;
     const raf = (time: number) => {
       lenis.raf(time);
@@ -52,10 +47,10 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     return () => {
       cancelAnimationFrame(animationFrameId);
       lenis.destroy();
-      window.removeEventListener("resize", checkMobile);
+      document.documentElement.style.scrollBehavior = "auto";
     };
-  }, [isMobile]);
+  }, []);
 
-  return <>{children}</>;
+  return <>{isHydrated ? children : children}</>;
 }
 

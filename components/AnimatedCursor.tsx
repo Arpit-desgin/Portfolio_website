@@ -2,15 +2,31 @@
 
 import { useEffect, useState, useRef } from "react";
 import { gsap } from "gsap";
+import { isMobileDevice } from "@/lib/performanceUtils";
 
 export default function AnimatedCursor() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [cursorType, setCursorType] = useState<"default" | "hover" | "click">("default");
+  const [isMobile, setIsMobile] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
 
+  // CRITICAL: Disable animated cursor on mobile (touch devices don't need it)
   useEffect(() => {
+    const isMobileNow = isMobileDevice();
+    setIsMobile(isMobileNow);
+    
+    // Don't render cursor on mobile
+    if (isMobileNow) {
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    // SKIP all functionality on mobile
+    if (isMobile) return;
+
     let mouseX = 0;
     let mouseY = 0;
     let cursorX = 0;
@@ -56,36 +72,19 @@ export default function AnimatedCursor() {
       setCursorType(isHovering ? "hover" : "default");
     };
 
+    // Add passive event listeners for better scroll performance
     window.addEventListener("mousemove", updateCursor, { passive: true });
     window.addEventListener("mousedown", handleMouseDown, { passive: true });
     window.addEventListener("mouseup", handleMouseUp, { passive: true });
 
-    // Detect interactive elements with MutationObserver for dynamic content
+    // OPTIMIZED: Only attach listeners to static interactive elements
+    // Remove expensive MutationObserver - causes constant DOM checks
     const interactiveSelectors = "a, button, [role='button'], input, textarea, select, [data-cursor='hover']";
-    let interactiveElements = document.querySelectorAll(interactiveSelectors);
+    const interactiveElements = document.querySelectorAll(interactiveSelectors);
     
-    const attachListeners = () => {
-      interactiveElements.forEach((el) => {
-        el.addEventListener("mouseenter", handleMouseEnter, { passive: true });
-        el.addEventListener("mouseleave", handleMouseLeave, { passive: true });
-      });
-    };
-
-    attachListeners();
-
-    // Watch for new interactive elements
-    const observer = new MutationObserver(() => {
-      interactiveElements.forEach((el) => {
-        el.removeEventListener("mouseenter", handleMouseEnter);
-        el.removeEventListener("mouseleave", handleMouseLeave);
-      });
-      interactiveElements = document.querySelectorAll(interactiveSelectors);
-      attachListeners();
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
+    interactiveElements.forEach((el) => {
+      el.addEventListener("mouseenter", handleMouseEnter, { passive: true });
+      el.addEventListener("mouseleave", handleMouseLeave, { passive: true });
     });
 
     animateCursor();
@@ -98,37 +97,29 @@ export default function AnimatedCursor() {
       window.removeEventListener("mousemove", updateCursor);
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
+      
+      // Clean up event listeners
       interactiveElements.forEach((el) => {
         el.removeEventListener("mouseenter", handleMouseEnter);
         el.removeEventListener("mouseleave", handleMouseLeave);
       });
-      observer.disconnect();
     };
-  }, []);
+  }, [isMobile]);
 
-  // Animate cursor size changes
+  // Animate cursor size changes - DESKTOP ONLY
   useEffect(() => {
-    if (cursorRef.current) {
-      const scale = cursorType === "click" ? 0.8 : isHovering ? 2.2 : 1;
-      gsap.to(cursorRef.current, {
-        scale,
-        duration: 0.3,
-        ease: "power2.out",
-      });
-    }
-  }, [isHovering, cursorType]);
+    if (isMobile || !cursorRef.current) return;
 
-  // Hide cursor on mobile/touch devices
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+    const scale = cursorType === "click" ? 0.8 : isHovering ? 2.2 : 1;
+    gsap.to(cursorRef.current, {
+      scale,
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  }, [isMobile, isHovering, cursorType]);
 
-  useEffect(() => {
-    const checkTouchDevice = () => {
-      setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    };
-    checkTouchDevice();
-  }, []);
-
-  if (isTouchDevice) {
+  // Don't render cursor on mobile
+  if (isMobile) {
     return null;
   }
 
